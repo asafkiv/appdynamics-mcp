@@ -28,31 +28,30 @@ Fetches the health rules for a specific application by ID.
 - Git installed
 - A [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens) if pushing to GitHub
 
-### 1. Clone This Repo
+### 1. Clone This Repo (optional)
 
 ```bash
 git clone https://github.com/asafkiv/appdynamics-mcp.git
 cd appdynamics-mcp
 ```
 
-### 2. Run the MCP Server
+### 2. Hosted Automatically by git-mcp
 
-```bash
-npx git-mcp
+You do **not** need to run a local server. Once this repository is public on GitHub, it is automatically hosted at:
+
 ```
-
-This will start a local MCP server based on your `mcp.json` file.
-
-### 3. Connect from a Supported AI Tool
-
-Open Claude, Cursor, or any tool supporting MCP, and point it to the server URL provided by `git-mcp`.
+https://gitmcp.io/asafkiv/appdynamics-mcp/mcp.json
+```
 
 ## 🤖 How to Use in Cursor
 
 1. Open **Cursor** ([https://cursor.sh](https://cursor.sh))
 2. Go to `Settings → Model Context Protocol (MCP)`
 3. Click **Add Custom MCP Server**
-4. Enter the URL you got from running `npx git-mcp` (e.g. `http://localhost:5543/mcp.json`)
+4. Enter:
+   ```
+   https://gitmcp.io/asafkiv/appdynamics-mcp/mcp.json
+   ```
 5. Use the `@AppDynamics MCP` context inside the editor like this:
    ```
    @AppDynamics MCP: run GetApplications
@@ -61,7 +60,45 @@ Open Claude, Cursor, or any tool supporting MCP, and point it to the server URL 
    ```
    @AppDynamics MCP: run GetHealthRules with {"APPLICATION_ID": 5}
    ```
-6. Cursor will make the call to AppDynamics and return results inline.
+
+## ⚠️ Troubleshooting
+
+If Cursor shows an error like:
+
+> “It appears that the AppDynamics MCP documentation and code are not currently available or accessible…”
+
+Try the following:
+
+### ✅ 1. Check the MCP URL
+
+Paste this exact URL in Cursor:
+
+```
+https://gitmcp.io/asafkiv/appdynamics-mcp/mcp.json
+```
+
+Make sure the repo is public, and accessible.
+
+### ✅ 2. Check Credentials in `mcp.json`
+
+Ensure the `Authorization` header contains a valid **Base64** token:
+
+```json
+"Authorization": "Basic ZXhwZXJpZW5jZUBleHBlcmllbmNlOkNkZTMyd3NY"
+```
+
+You can test the endpoint with:
+
+```bash
+curl -H "Authorization: Basic ZXhw..." \
+  https://experience.saas.appdynamics.com/controller/rest/applications?output=JSON
+```
+
+If the response fails, check credentials or account access.
+
+### ✅ 3. Try Using Claude.ai
+
+Claude also supports MCP — test there if Cursor doesn’t connect.
 
 ## 🔐 Authentication
 
