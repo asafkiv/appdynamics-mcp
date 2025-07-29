@@ -1,0 +1,29 @@
+// gitmcp-appdynamics/mcp.json
+{
+  "name": "AppDynamics MCP",
+  "description": "Expose AppDynamics REST API via MCP for AI tools",
+  "tools": [
+    {
+      "name": "GetApplications",
+      "description": "List all applications in AppDynamics",
+      "type": "http",
+      "url": "https://experience.saas.appdynamics.com/controller/rest/applications?output=JSON",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Basic ZXhwZXJpZW5jZUBleHBlcmllbmNlOkNkZTMyd3NY",
+        "Accept": "application/json"
+      }
+    },
+    {
+      "name": "GetHealthRules",
+      "description": "List all health rules for a specific application",
+      "type": "http",
+      "url": "https://experience.saas.appdynamics.com/controller/healthrules/applications/<APPLICATION_ID>?output=JSON",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Basic ZXhwZXJpZW5jZUBleHBlcmllbmNlOkNkZTMyd3NY",
+        "Accept": "application/json"
+      }
+    }
+  ]
+}
