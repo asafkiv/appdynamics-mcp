@@ -1,129 +1,103 @@
 # AppDynamics MCP
 
-Expose your AppDynamics SaaS API as an [MCP (Model Context Protocol)](https://docs.anthropic.com/en/docs/mcp) endpoint, enabling tools like Claude, Cursor, and others to interact with your monitoring data using natural language.
+This repository defines a set of AppDynamics API endpoints that can be used by tools supporting the Model Context Protocol (MCP), such as Claude and Cursor. These endpoints provide access to monitoring data from AppDynamics SaaS.
 
-## 🔧 What This Repo Does
+## 📘 Overview
 
-This repository includes a `mcp.json` file which:
+This project exposes key AppDynamics REST API endpoints in a format compatible with [gitmcp.io](https://gitmcp.io). This enables AI tools to query AppDynamics metadata, such as applications, health rules, tiers, and nodes.
 
-- Connects to your AppDynamics SaaS controller
-- Uses REST API to fetch application data and health rules
-- Exposes the API via an MCP server using [git-mcp](https://github.com/gitmcp/gitmcp)
-
-## 📦 Tools Defined
+## 🔗 API Endpoints
 
 ### 1. `GetApplications`
 
-Fetches a list of all applications in your AppDynamics account.
+Fetches a list of all applications in AppDynamics.
+
+```
+GET /controller/rest/applications?output=JSON
+```
+
+**Returns:** Application ID, name, account info
 
 ### 2. `GetHealthRules`
 
-Fetches the health rules for a specific application by ID.
-
-## 🚀 How to Deploy
-
-### Prerequisites
-
-- Node.js installed
-- Git installed
-- A [GitHub Personal Access Token (PAT)](https://github.com/settings/tokens) if pushing to GitHub
-
-### 1. Clone This Repo (optional)
-
-```bash
-git clone https://github.com/asafkiv/appdynamics-mcp.git
-cd appdynamics-mcp
-```
-
-### 2. Hosted Automatically by git-mcp
-
-You do **not** need to run a local server. Once this repository is public on GitHub, it is automatically hosted at:
+Fetches all health rules for a specific application.
 
 ```
-https://gitmcp.io/asafkiv/appdynamics-mcp/mcp.json
+GET /controller/healthrules/applications/{APPLICATION_ID}?output=JSON
 ```
 
-## 🤖 How to Use in Cursor
+**Returns:** Rule name, evaluation criteria
 
-1. Open **Cursor** ([https://cursor.sh](https://cursor.sh))
-2. Go to `Settings → Model Context Protocol (MCP)`
-3. Click **Add Custom MCP Server**
-4. Enter:
-   ```
-   https://gitmcp.io/asafkiv/appdynamics-mcp/mcp.json
-   ```
-5. Use the `@AppDynamics MCP` context inside the editor like this:
-   ```
-   @AppDynamics MCP: run GetApplications
-   ```
-   or:
-   ```
-   @AppDynamics MCP: run GetHealthRules with {"APPLICATION_ID": 5}
-   ```
+### 3. `GetTiers`
 
-## ⚠️ Troubleshooting
-
-If Cursor shows an error like:
-
-> “It appears that the AppDynamics MCP documentation and code are not currently available or accessible…”
-
-Try the following:
-
-### ✅ 1. Check the MCP URL
-
-Paste this exact URL in Cursor:
+Returns all tiers (business transactions layer) for a given application.
 
 ```
-https://gitmcp.io/asafkiv/appdynamics-mcp/mcp.json
+GET /controller/rest/applications/{APPLICATION_ID}/tiers?output=JSON
 ```
 
-Make sure the repo is public, and accessible.
+**Returns:** Tier name, ID, description
 
-### ✅ 2. Check Credentials in `mcp.json`
+### 4. `GetNodes`
 
-Ensure the `Authorization` header contains a valid **Base64** token:
+Fetches nodes running under a specific tier.
 
-```json
-"Authorization": "Basic ZXhwZXJpZW5jZUBleHBlcmllbmNlOkNkZTMyd3NY"
+```
+GET /controller/rest/applications/{APPLICATION_ID}/tiers/{TIER_ID}/nodes?output=JSON
 ```
 
-You can test the endpoint with:
-
-```bash
-curl -H "Authorization: Basic ZXhw..." \
-  https://experience.saas.appdynamics.com/controller/rest/applications?output=JSON
-```
-
-If the response fails, check credentials or account access.
-
-### ✅ 3. Try Using Claude.ai
-
-Claude also supports MCP — test there if Cursor doesn’t connect.
+**Returns:** Node name, machine name, agent type
 
 ## 🔐 Authentication
 
-This setup uses Basic Authentication. To generate your credentials:
+AppDynamics uses Basic Authentication. Encode your credentials as:
 
 ```bash
 echo -n 'youruser@account:yourpassword' | base64
 ```
 
-Then replace the value in the `Authorization` header in `mcp.json`:
+Then send this in the HTTP `Authorization` header:
 
-```json
-"Authorization": "Basic <your_base64_token>"
+```
+Authorization: Basic <your_encoded_token>
 ```
 
-## 📘 AppDynamics API Reference
+## 🧠 Usage Example
 
-- [Official Docs](https://docs.appdynamics.com/)
-- Sample endpoint: `GET /controller/rest/applications`
+To list all application names:
+
+```
+curl -H "Authorization: Basic ZXhw..." \
+  https://experience.saas.appdynamics.com/controller/rest/applications?output=JSON
+```
+
+To get tiers for application 5:
+
+```
+curl -H "Authorization: Basic ZXhw..." \
+  https://experience.saas.appdynamics.com/controller/rest/applications/5/tiers?output=JSON
+```
+
+## 🤖 For AI tools using MCP
+
+Use the following GitMCP URL:
+
+```
+https://gitmcp.io/asafkiv/appdynamics-mcp
+```
+
+Add it as a custom MCP server in Cursor or Claude. Then call tools like:
+
+```
+@AppDynamics MCP: run GetApplications
+@AppDynamics MCP: run GetTiers with {"APPLICATION_ID": 5}
+```
 
 ## 🙏 Credits
 
-Created by Asaf using [git-mcp](https://github.com/gitmcp/gitmcp) and AppDynamics SaaS.
+Created by Asaf. Powered by AppDynamics and GitMCP.
 
 ---
 
-Feel free to fork or extend this setup for any other monitoring platforms!
+Feel free to fork or extend this repository to support additional endpoints such as metrics, events, and dashboards.
 
